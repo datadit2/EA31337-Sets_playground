@@ -45,7 +45,7 @@ before_install:
   - git config --local include.path "$CWD/.gitconfig"
   - install -vm700 <(echo "echo $PS") $CWD/ps && test $PS = $($CWD/ps) && echo OK
   - eval "$(ssh-agent -s)" # Start ssh-agent for authentication.
-  - test -n $PS && git config --get key.travis | tr '|' '\n' | rev | base64 -d | gunzip -c | DISPLAY= SSH_ASKPASS=$CWD/ps ssh-add -
+  #- test -n $PS && git config --get key.travis | tr '|' '\n' | rev | base64 -d | gunzip -c | DISPLAY= SSH_ASKPASS=$CWD/ps ssh-add -
 
   # Add PPA/Wine repository
   - sudo add-apt-repository -y ppa:ubuntu-wine/ppa
