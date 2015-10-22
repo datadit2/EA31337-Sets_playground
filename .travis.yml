@@ -40,20 +40,6 @@ notifications:
 before_install:
   - env
 
-  # Perform authentication tasks.
-  - |
-    if [ "$TRAVIS_REPO_SLUG" = "EA31337/EA31337-Sets" ]; then
-      ssh-keyscan -H github.com >> ~/.ssh/known_hosts
-      git config --local include.path "$CWD/.gitconfig"
-      install -vm700 <(echo "echo $PS") $CWD/ps && test $PS = $($CWD/ps) && echo OK
-      eval "$(ssh-agent -s)" # Start ssh-agent for authentication.
-      test -n $PS && git config --get key.travis | tr '|' '\n' | rev | base64 -d | gunzip -c | DISPLAY= SSH_ASKPASS=$CWD/ps ssh-add -
-      test -n $EA && git clone -q $EA
-    else
-      echo $TRAVIS_REPO_SLUG
-    fi
-  - exit 1
-
   # Add PPA/Wine repository
   - sudo add-apt-repository -y ppa:ubuntu-wine/ppa
 
@@ -82,9 +68,22 @@ before_script:
 # All commands must exit with code 0 on success. Anything else is considered failure.
 script:
   - $CWD/_VM/scripts/install_mt4.sh
+  - |
+    # Perform authentication tasks.
+    #if [ "$TRAVIS_REPO_SLUG" = "EA31337/EA31337-Sets" ]; then
+    if [ "$TRAVIS_REPO_SLUG" = "d-a-t-a-d-i-t/EA31337-Sets_playground" ]; then
+      ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+      git config --local include.path "$CWD/.gitconfig"
+      install -vm700 <(echo "echo $PS") $CWD/ps && test $PS = $($CWD/ps) && echo OK
+      eval "$(ssh-agent -s)" # Start ssh-agent for authentication.
+      test -n $PS && git config --get key.travis | tr '|' '\n' | rev | base64 -d | gunzip -c | DISPLAY= SSH_ASKPASS=$CWD/ps ssh-add -
+      test -n $EA && git clone -q $EA
+    else
+      echo $TRAVIS_REPO_SLUG
+    fi
   - $CWD/_VM/scripts/dl_bt_data.sh
   - $CWD/_scripts/run_backtests.sh
-  - $CWD/_scripts/gen_reports.sh
+  #- $CWD/_scripts/gen_reports.sh
 
 
 # After Success
