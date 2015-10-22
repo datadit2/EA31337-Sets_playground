@@ -41,11 +41,18 @@ before_install:
   - env
 
   # Perform authentication tasks.
-  - ssh-keyscan -H github.com >> ~/.ssh/known_hosts
-  - git config --local include.path "$CWD/.gitconfig"
-  - install -vm700 <(echo "echo $PS") $CWD/ps && test $PS = $($CWD/ps) && echo OK
-  - eval "$(ssh-agent -s)" # Start ssh-agent for authentication.
-  #- test -n $PS && git config --get key.travis | tr '|' '\n' | rev | base64 -d | gunzip -c | DISPLAY= SSH_ASKPASS=$CWD/ps ssh-add -
+  - |
+    if [ "$TRAVIS_REPO_SLUG" = "EA31337/EA31337-Sets" ]; then
+      ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+      git config --local include.path "$CWD/.gitconfig"
+      install -vm700 <(echo "echo $PS") $CWD/ps && test $PS = $($CWD/ps) && echo OK
+      eval "$(ssh-agent -s)" # Start ssh-agent for authentication.
+      test -n $PS && git config --get key.travis | tr '|' '\n' | rev | base64 -d | gunzip -c | DISPLAY= SSH_ASKPASS=$CWD/ps ssh-add -
+      test -n $EA && git clone -q $EA
+    else
+      echo $TRAVIS_REPO_SLUG
+    fi
+  - exit 1
 
   # Add PPA/Wine repository
   - sudo add-apt-repository -y ppa:ubuntu-wine/ppa
@@ -60,7 +67,7 @@ before_install:
 # Install
 # Use this to install any prerequisites or dependencies necessary to run your build.
 install:
-  #- sudo -E apt-get --no-install-suggests --no-install-recommends --force-yes install xvfb xdotool winbind wine1.7 realpath
+  - sudo -E apt-get --no-install-suggests --no-install-recommends --force-yes install xvfb xdotool winbind wine1.7 realpath
   - sudo install -v $CWD/_VM/scripts/run_backtest.sh /usr/local/bin
 
 
@@ -68,7 +75,6 @@ install:
 # Use this to prepare your build for testing (e.g. copy database configurations, environment variables, etc.).
 before_script:
   - Xvfb $DISPLAY -screen 0 1024x768x16 &
-  - test -n $EA && git clone -q $EA
 
 
 # Script
