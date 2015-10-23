@@ -84,10 +84,11 @@ script:
       EA_SAMPLE=$(find ~/.wine/drive_c -path *Experts* -type f -name MACD*.ex4 -print0 -quit)
       ln -s "$EA_SAMPLE" /vagrant/Lite.ex4
       ln -s "$EA_SAMPLE" /vagrant/Advanced.ex4
-      ls -l /vagrant # REMOVE_ME
+      ls -l /vagrant/ # REMOVE_ME
     fi
   - $CWD/_VM/scripts/dl_bt_data.sh
-  - $CWD/_scripts/run_backtests.sh $CWD/$MODE
+  - $CWD/_scripts/run_backtests.sh $MODE
+  - ls -l ~/.wine/drive_c/Program\ Files\ \(x86\)/MetaTrader\ 4/
   - $CWD/_scripts/gen_reports.sh
 
 
