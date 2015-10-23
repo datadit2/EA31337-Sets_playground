@@ -71,18 +71,26 @@ before_script:
 # All commands must exit with code 0 on success. Anything else is considered failure.
 script:
   - $CWD/_VM/scripts/install_mt4.sh
-  # Perform authentication tasks.
-  - if [ "$TRAVIS_REPO_SLUG" = "EA31337/EA31337-Sets" ]; then
-  -   ssh-keyscan -H github.com >> ~/.ssh/known_hosts
-  -   git config --local include.path "$CWD/.gitconfig"
-  -   install -vm700 <(echo "echo $PS") $CWD/ps && test $PS = $($CWD/ps) && echo OK
-  -   eval "$(ssh-agent -s)" # Start ssh-agent for authentication.
-  -   test -n $PS && git config --get key.travis | tr '|' '\n' | rev | base64 -d | gunzip -c | DISPLAY= SSH_ASKPASS=$CWD/ps ssh-add -
-  -   test -n $EA && git clone -q $EA
-  - else
-  -   EA_SAMPLE=$(find ~/.wine/drive_c -path *Experts* -type f -name MACD*.ex4 -print0 -quit)
-  -   ln -s "$EA_SAMPLE" "/vagrant/$MODE.ex4"
-  - fi
+  - |
+    # Perform authentication tasks.
+    if [ "$TRAVIS_REPO_SLUG" = "EA31337/EA31337-Sets" ] && [ -n "$PS" ] && [ -n "$EA" ]; then
+      ssh-keyscan -H github.com >> ~/.ssh/known_hosts                                                         && echo 'OK #1'
+      git config --local include.path "$CWD/.gitconfig"                                                       && echo 'OK #2'
+      install -vm700 <(echo "echo $PS") $CWD/ps && test $PS = $($CWD/ps)                                      && echo 'OK #3'
+      eval "$(ssh-agent -s)"                                                                                  && echo 'OK #4'
+      DISPLAY_BACKUP=$DISPLAY && unset DISPLAY                                                                && echo 'OK #5'
+      git config --get key.travis | tr '|' '\n' | rev | base64 -d | gunzip -c | SSH_ASKPASS=$CWD/ps ssh-add - && echo 'OK #6'
+      git clone -q $EA                                                                                        && echo 'OK #7'
+      DISPLAY=$DISPLAY_BACKUP && unset DISPLAY_BACKUP                                                         && echo 'OK #8'
+    else
+      DISPLAY_BACKUP=$DISPLAY && unset DISPLAY                                                                && echo 'OK #5'
+      DISPLAY=$DISPLAY_BACKUP                                                                                 && echo 'OK #8'
+      EA_SAMPLE=$(find ~/.wine/drive_c -path '*Experts*' -type f -name MACD*.ex4 -print0 -quit)               && echo 'OK #1'
+      ln -s "$EA_SAMPLE" "/vagrant/$MODE.ex4"                                                                 && echo 'OK #2'
+    fi
+  - echo $DISPLAY
+  - echo $DISPLAY_BACKUP
+  - exit 0
   - $CWD/_VM/scripts/dl_bt_data.sh
   - $CWD/_scripts/run_backtests.sh "$MODE"
   - $CWD/_scripts/gen_reports.sh
