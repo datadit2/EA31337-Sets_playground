@@ -85,6 +85,7 @@ script:
       DISPLAY=$DISPLAY_BACKUP                                                                                 && echo 'OK #8'
     # Otherwise link a sample EA to be used in bactests
     else
+      echo $DISPLAY_BACKUP && exit 0
       EA_SAMPLE=$(find ~/.wine/drive_c -path '*Experts*' -type f -name MACD*.ex4 -print0 -quit)               && echo 'OK #1'
       ln -s "$EA_SAMPLE" "/vagrant/$MODE.ex4"                                                                 && echo 'OK #2'
     fi
