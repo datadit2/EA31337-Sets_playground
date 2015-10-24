@@ -63,7 +63,7 @@ install:
 # Before Script
 # Use this to prepare your build for testing (e.g. copy database configurations, environment variables, etc.).
 before_script:
-  - Xvfb $DISPLAY 1024x768x16 &
+  - Xvfb $DISPLAY -screen 0 1024x768x16 &
 
 
 # Script
@@ -71,7 +71,6 @@ before_script:
 # All commands must exit with code 0 on success. Anything else is considered failure.
 script:
   - $CWD/_VM/scripts/install_mt4.sh
-  - exit 0 # REMOVE ME
   - |
     # Clone EAs if Travis runs on home repository
     if [ "$TRAVIS_REPO_SLUG" = "EA31337/EA31337-Sets" ] && [ -n "$PS" ] && [ -n "$EA" ]; then
@@ -90,8 +89,10 @@ script:
       ln -s "$EA_SAMPLE" "/vagrant/$MODE.ex4"                                                                 && echo 'OK #2'
     fi
   - $CWD/_VM/scripts/dl_bt_data.sh
+  - ln -s "$TRAVIS_BUILD_DIR" "$(dirname "$(find -L ~/.wine/drive_c/ -name terminal.exe -print0 -quit)")/sets"
   - $CWD/_scripts/run_backtests.sh "$MODE"
   - $CWD/_scripts/gen_reports.sh
+  - tree $CWD/$MODE
 
 
 # After Success
