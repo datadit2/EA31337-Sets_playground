@@ -79,13 +79,12 @@ script:
       git config --local include.path "$CWD/.gitconfig"                                                       && echo 'OK #2'
       install -vm700 <(echo "echo $PS") $CWD/ps && test $PS = $($CWD/ps)                                      && echo 'OK #3'
       eval "$(ssh-agent -s)"                                                                                  && echo 'OK #4'
-      unset DISPLAY                                                                                           && echo 'OK #5'
+      unset DISPLAY                                                                                           && echo 'OK #5' # Required by ssh-add
       git config --get key.travis | tr '|' '\n' | rev | base64 -d | gunzip -c | SSH_ASKPASS=$CWD/ps ssh-add - && echo 'OK #6'
       git clone -q $EA                                                                                        && echo 'OK #7'
       DISPLAY=$DISPLAY_BACKUP                                                                                 && echo 'OK #8'
-    # Otherwise link a sample EA to be used in bactests
+    # Otherwise link an available sample EA
     else
-      echo $DISPLAY_BACKUP && exit 0
       EA_SAMPLE=$(find ~/.wine/drive_c -path '*Experts*' -type f -name MACD*.ex4 -print0 -quit)               && echo 'OK #1'
       ln -s "$EA_SAMPLE" "/vagrant/$MODE.ex4"                                                                 && echo 'OK #2'
     fi
