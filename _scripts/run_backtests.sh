@@ -12,6 +12,7 @@ find "$ROOT/$1" -type f -name "*.ini" -print0 | while IFS= read -r -d '' file; d
   dir="$(dirname "$file")"
 done
 
+echo 'Cycle starts...'
 for deposit in ${deposits[@]}; do
   for year in ${years[@]}; do
     for bt_source in ${bt_sources[@]}; do
@@ -22,3 +23,4 @@ for deposit in ${deposits[@]}; do
     done
   done
 done
+echo 'Cycle ended!'
