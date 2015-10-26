@@ -89,7 +89,7 @@ script:
       ln -s "$EA_SAMPLE" "/vagrant/$MODE.ex4"                                                                 && echo 'OK #2'
     fi
   - $CWD/_VM/scripts/dl_bt_data.sh
-  - ln -s "$TRAVIS_BUILD_DIR" "$(dirname $(find -L /.wine/drive_c/ -name terminal.exe -print0 -quit))/sets"
+  - ln -s "$TRAVIS_BUILD_DIR" "$(dirname "$(find -L ~/.wine/drive_c/ -name terminal.exe -print0 -quit)")/sets"
   - $CWD/_scripts/run_backtests.sh "$MODE"
   - $CWD/_scripts/gen_reports.sh
   - tree $CWD/$MODE
