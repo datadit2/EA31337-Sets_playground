@@ -28,7 +28,7 @@ configure_wine() {
 
 on_success() {
   echo "Test succeded."
-  check_logs
+#  check_logs
   html2text $(find -L "$TERMINAL_DIR" $FIND_EXCLUDES -name "Report*.htm")
   [ "$DEST" ] && find -L "$TERMINAL_DIR" $FIND_EXCLUDES -name "*Report*" -and -not -path "*templates/*" -execdir cp -v "{}" "$DEST" ';'
 }
