@@ -63,7 +63,7 @@ install:
 # Before Script
 # Use this to prepare your build for testing (e.g. copy database configurations, environment variables, etc.).
 before_script:
-  - Xvfb $DISPLAY -screen 0 1024x768x16 &> ~/Xvfb.log &
+  - Xvfb $DISPLAY -screen 0 1024x768x16 &
 
 
 # Script
@@ -90,7 +90,6 @@ script:
     fi
   - $CWD/_VM/scripts/dl_bt_data.sh
   - $CWD/_scripts/run_backtests.sh "$MODE"
-  #- $CWD/_scripts/gen_reports.sh
   - tree -ps $CWD
 
 
