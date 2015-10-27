@@ -28,8 +28,11 @@ configure_wine() {
 
 on_success() {
   echo "Test succeded."
-#  check_logs
-#  html2text $(find -L "$TERMINAL_DIR" $FIND_EXCLUDES -name "Report*.htm")
+  echo 'Check logs'
+  check_logs
+  echo 'html2text'
+  html2text $(find -L "$TERMINAL_DIR" $FIND_EXCLUDES -name "Report*.htm")
+  echo 'DEST & find'
   [ "$DEST" ] && find -L "$TERMINAL_DIR" $FIND_EXCLUDES -name "*Report*" -and -not -path "*templates/*" -execdir cp -v "{}" "$DEST" ';'
 }
 
@@ -113,4 +116,4 @@ clean_files
 configure_wine
 
 # Run the test in the platform.
-time wine "$TERMINAL_EXE" "config/$CONF" && on_success || on_failure
+time wine "$TERMINAL_EXE" "config/$CONF" 2 > /dev/null && on_success || on_failure
