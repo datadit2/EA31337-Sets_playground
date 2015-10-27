@@ -28,8 +28,10 @@ configure_wine() {
 
 on_success() {
   echo "Test succeded."
-  echo 'Check logs'
-  check_logs
+  #echo 'Check logs'
+  #check_logs
+  echo 'FIND Report*'
+  find -L "$TERMINAL_DIR" $FIND_EXCLUDES -name "Report*.htm" -print
   echo 'html2text'
   html2text "$(find -L "$TERMINAL_DIR" $FIND_EXCLUDES -name "Report*.htm")"
   echo 'DEST & find'
@@ -60,16 +62,19 @@ while getopts r:f:n:p:d:y:s:b:D: opts; do
         REPORT="$(basename "${OPTARG}")" # ... otherwise, it's a filename.
       fi
       [ "$REPORT" ]  && ex -s +"%s#^TestReport=\zs.\+\$#$REPORT#" -cwq "$TERMINAL_INI"
+      echo "REPORT = $REPORT"
       ;;
 
     f) # The set file to run the test.
       SETFILE=${OPTARG}
+      echo "SETFILE = $SETFILE"
       [ -s "$SETFILE" ] && cp -v "$SETFILE" "$TERMINAL_DIR/tester"
       [ "$SETFILE" ]    && ex -s +"%s/^TestExpertParameters=\zs.\+$/$SETFILE/" -cwq "$TERMINAL_INI"
       ;;
 
     n) # EA name.
       EA_NAME=${OPTARG}
+      echo "EA_NAME = $EA_NAME"
       EA_PATH="$(find -L "$VDIR" '(' $FIND_EXCLUDES -name "*$EA_NAME*.ex4" -or $FIND_EXCLUDES -name "*$EA_NAME*.ex5" ')' -print -quit)"
       [ -s "$EA_PATH" ]  && { cp -v "$EA_PATH" "$TERMINAL_DIR/MQL4/Experts"; EA_NAME="$(basename "$EA_PATH")"; }
       [ "$EA_NAME" ]     && ex -s +"%s/^TestExpert=\zs.\+$/$EA_NAME/" -cwq "$TERMINAL_INI"
@@ -77,16 +82,19 @@ while getopts r:f:n:p:d:y:s:b:D: opts; do
 
     p) # Symbol pair to test.
       SYMBOL=${OPTARG}
+      echo "SYMBOL = $SYMBOL"
       [ "$SYMBOL" ]      && ex -s +"%s/^TestSymbol=\zs.\+$/$SYMBOL/" -cwq "$TERMINAL_INI"
       ;;
 
     d) # Deposit amount to test.
       DEPOSIT="$5"
+      echo "DEPOSIT = $DEPOSIT"
       # @todo: Set the right deposit for the test.
       ;;
 
     y) # Year to test.
       YEAR=${OPTARG}
+      echo "YEAR = $YEAR"
       FROM="$YEAR.01.01"
       TO="$YEAR.01.02"
       [ "$FROM" ]       && ex -s +"%s/^TestFromDate=\zs.\+$/$FROM/" -cwq "$TERMINAL_INI"
@@ -95,17 +103,20 @@ while getopts r:f:n:p:d:y:s:b:D: opts; do
 
     s) # Spread to test.
       SPREAD=${OPTARG}
+      echo "SPREAD = $SPREAD"
       # @todo: Set the right spread for the test.
       ;;
 
     b) # Backtest data to test.
       BT_SOURCE=${OPTARG}
+      echo "BT_SOURCE = $BT_SOURCE"
       # @todo: Place the right backtest data into the right place and change the profile name.
       [ "$(find -L "$OUT" $FIND_EXCLUDES -name '*.fxt')" ] || $VDIR/scripts/dl_bt_data.sh # Download backtest files if not present.
       ;;
 
     D) # Destination directory to save test results.
       DEST=${OPTARG}
+      echo "DEST = $DEST"
       ;;
 
   esac
