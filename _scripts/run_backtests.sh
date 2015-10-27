@@ -14,7 +14,6 @@ find "$ROOT/$1" -type f -name "test.ini" -print0 | while IFS= read -r -d '' file
     for year in ${years[@]}; do
       for bt_source in ${bt_sources[@]}; do
         for spread in ${spreads[@]}; do
-          echo "DIR = $dir"
           run_backtest.sh -f $setfile -n $name -p $pair -d $deposit -y $year -s $spread -b $bt_source -D "$dir"
         done
       done
