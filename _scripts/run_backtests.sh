@@ -20,7 +20,7 @@ find "$ROOT/$1" -type f -name "test.ini" -print0 | while IFS= read -r -d '' file
       done
     done
   done
-done
 
-# Replace old reports with the new
-mv "$dir/README.md.new" "$dir/README.md"
+  # Replace old reports with the new
+  mv "$dir/README.md.new" "$dir/README.md"
+done
