@@ -91,6 +91,7 @@ script:
   - $CWD/_VM/scripts/dl_bt_data.sh
   - $CWD/_scripts/run_backtests.sh "$MODE"
   - tree -ps $CWD
+  - find "$CWD/$MODE" -type f -name README.md -exec cat {} ';'
 
 
 # After Success
