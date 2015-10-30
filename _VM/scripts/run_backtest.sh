@@ -113,4 +113,4 @@ clean_files
 configure_wine
 
 # Run the test in the platform.
-time wine "$TERMINAL_EXE" "config/$CONF" && on_success || on_failure
+time wine "$TERMINAL_EXE" "config/$CONF" &>> ~/wine_terminal.exe.log && on_success || on_failure

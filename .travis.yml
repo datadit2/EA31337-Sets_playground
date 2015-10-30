@@ -63,7 +63,7 @@ install:
 # Before Script
 # Use this to prepare your build for testing (e.g. copy database configurations, environment variables, etc.).
 before_script:
-  - Xvfb $DISPLAY -screen 0 1024x768x16 &
+  - Xvfb $DISPLAY -screen 0 1024x768x16 &> ~/Xvfb.log &
 
 
 # Script
@@ -75,23 +75,22 @@ script:
     # Clone EAs if Travis runs on home repository
     if [ "$TRAVIS_REPO_SLUG" = "EA31337/EA31337-Sets" ] && [ -n "$PS" ] && [ -n "$EA" ]; then
       # Perform authentication tasks.
-      ssh-keyscan -H github.com >> ~/.ssh/known_hosts                                                         && echo 'OK #1'
-      git config --local include.path "$CWD/.gitconfig"                                                       && echo 'OK #2'
-      install -vm700 <(echo "echo $PS") $CWD/ps && test $PS = $($CWD/ps)                                      && echo 'OK #3'
-      eval "$(ssh-agent -s)"                                                                                  && echo 'OK #4'
-      unset DISPLAY                                                                                           && echo 'OK #5' # Required by ssh-add
-      git config --get key.travis | tr '|' '\n' | rev | base64 -d | gunzip -c | SSH_ASKPASS=$CWD/ps ssh-add - && echo 'OK #6'
-      DISPLAY=$DISPLAY_BACKUP                                                                                 && echo 'OK #7'
-      git clone -q $EA ~/ea                                                                                   && echo 'OK #8'
-      cp -v ~/ea/*.ex4 /vagrant                                                                               && echo 'OK #9'
+      ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+      git config --local include.path "$CWD/.gitconfig"
+      install -vm700 <(echo "echo $PS") $CWD/ps && test $PS = $($CWD/ps)
+      eval "$(ssh-agent -s)"
+      git config --get key.travis | tr '|' '\n' | rev | base64 -d | gunzip -c | DISPLAY= SSH_ASKPASS=$CWD/ps ssh-add -
+      git clone -q $EA ~/ea
+      DISPLAY=$DISPLAY_BACKUP
+      cp -v ~/ea/*.ex4 /vagrant
     # Otherwise link an available sample EA
     else
-      EA_SAMPLE=$(find ~/.wine/drive_c -path '*Experts*' -type f -name MACD*.ex4 -print0 -quit)               && echo 'OK #1'
-      ln -s "$EA_SAMPLE" "/vagrant/$MODE.ex4"                                                                 && echo 'OK #2'
+      echo 'Using *SAMPLE* expert!'
+      EA_SAMPLE=$(find ~/.wine/drive_c -path '*Experts*' -type f -name MACD*.ex4 -print0 -quit)
+      ln -s "$EA_SAMPLE" "/vagrant/$MODE.ex4"
     fi
   - $CWD/_VM/scripts/dl_bt_data.sh
   - $CWD/_scripts/run_backtests.sh "$MODE"
-  - tree -psa ~/
 
 
 # After Success
@@ -103,6 +102,9 @@ script:
 after_failure:
  - tree -d -L3 ~/ # Print directory structure in the form of a tree.
  - env
+ # Dump collected logs
+ - LINE=$(printf '%*s' $COLUMNS | tr ' ' '-')
+ - find ~ -name *.log -exec echo -e "$LINE\nDumping {}\n$LINE" ';' -exec cat {} ';' -exec echo -e "\n" ';'
 
 # After Script
 # Test result is exported to TRAVIS_TEST_RESULT.
