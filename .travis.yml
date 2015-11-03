@@ -99,7 +99,8 @@ script:
   - git add -A "$MODE"
   - git commit -am 'New report.'
   - git push https://$USER:$OAUTH_TOKEN@github.com/$USER/$REPOSITORY
-  - curl -i -H "Authorization: token $OAUTH_TOKEN" -d "{\"title\": \"PR Title\", \"base\": \"master\", \"head\": \"datadit2:master\"}" https://api.github.com/repos/d-a-t-a-d-i-t/EA31337-Sets_playground/pulls
+  - |-
+    curl -i -H "Authorization: token $OAUTH_TOKEN" -d '{"title": "PR Title", "base": "master", "head": "'$USER':master"}' https://api.github.com/repos/d-a-t-a-d-i-t/EA31337-Sets_playground/pulls
 
 
 # After Success
