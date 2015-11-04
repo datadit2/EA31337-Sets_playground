@@ -43,6 +43,7 @@ before_install:
       #git commit -am 'New report.'
       #git push https://$USER:$OAUTH_TOKEN@github.com/$USER/$REPOSITORY
       #|-
+      # REMOVE_ME
       if [ -z "$OAUTH_TOKEN" ]; then
         echo "Please set the OAUTH_TOKEN environment variable in Travis CI with a valid access token which has the 'public_repo' scope."
         exit 1
