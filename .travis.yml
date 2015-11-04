@@ -34,31 +34,37 @@ before_install:
   - echo "UPSTREAM_USER=$UPSTREAM_USER"
   - echo "USER=$USER"
   - echo "REPOSITORY=$REPOSITORY"
+  - echo "TRAVIS_BRANCH=$TRAVIS_BRANCH"
   - |
     # Send pull-request to upstream repository if Travis is running in a forked repository
     if [ "$USER" != "$UPSTREAM_USER" ]; then
-      #git add -A "$MODE"
-      #git config user.name $USER
-      #git config user.email $USER'@users.noreply.github.com'
-      #git commit -am 'New report.'
       #git push https://$USER:$OAUTH_TOKEN@github.com/$USER/$REPOSITORY
       #|-
-      # REMOVE_ME
+
+      # Check if the forker's GitHub access token was passed to Travis
       if [ -z "$OAUTH_TOKEN" ]; then
         echo "Please set the OAUTH_TOKEN environment variable in Travis CI with a valid access token which has the 'public_repo' scope."
         exit 1
       fi
 
+      # Send pull-request to upstream (main) repository for doing the backtests
       CURL_STATUS=$(curl -siH "Authorization: token $OAUTH_TOKEN" -d '{"title": "'"$(date --rfc-3339=seconds)"'", "base": "'$TRAVIS_BRANCH'", "head": "'$USER':'$TRAVIS_BRANCH'"}' https://api.github.com/repos/$UPSTREAM_USER/$REPOSITORY/pulls | head -n1 | cut -d' ' -f2) #'
       echo "CURL_STATUS=$CURL_STATUS"
-      [ "$CURL_STATUS" = "201" ] && exit 0 || exit 1
+      if [ "$CURL_STATUS" != "201" ]; then
+        exit 1  # TODO Provide some useful message...
+      fi
+      exit 0
+
+      if [ "$TRAVIS_BRANCH" != "master" ]; then
+        echo "We're in the upstream repo on $TRAVIS_BRANCH branch.  TODO"
+        exit 1
+      fi
     fi
-    #if [ -n "$OAUTH_TOKEN" ]; then
-    #  export REPOSITORY=${TRAVIS_REPO_SLUG##*/}
-    #fi
+
+  # ||
+  # ||
+  # \/
   - env
-  - ps aux
-  - exit 0
 
   # Add PPA/Wine repository
   - sudo add-apt-repository -y ppa:ubuntu-wine/ppa
@@ -111,6 +117,13 @@ script:
     fi
   - $CWD/_VM/scripts/dl_bt_data.sh
   - $CWD/_scripts/run_backtests.sh "$MODE"
+  - DATE=$(date +%Y%m%d)
+  - git checkout -b "EA-$DATE"
+  - git add -A "$MODE"
+  - git config user.name $USER
+  - git config user.email $USER'@users.noreply.github.com'
+  - git commit -am 'New report.'
+  - git push
 
 
 # After Success
