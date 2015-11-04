@@ -48,7 +48,7 @@ before_install:
         exit 1
       fi
 
-      CURL_STATUS=$(curl -siH "Authorization: token $OAUTH_TOKEN" -d '{"title": "'$(date --rfc-3339=seconds)'", "base": "'$TRAVIS_BRANCH'", "head": "'$USER':'$TRAVIS_BRANCH'"}' https://api.github.com/repos/$UPSTREAM_USER/$REPOSITORY/pulls | head -n1 | cut -d' ' -f2) #'
+      CURL_STATUS=$(curl -siH "Authorization: token $OAUTH_TOKEN" -d '{"title": "'"$(date --rfc-3339=seconds)"'", "base": "'$TRAVIS_BRANCH'", "head": "'$USER':'$TRAVIS_BRANCH'"}' https://api.github.com/repos/$UPSTREAM_USER/$REPOSITORY/pulls | head -n1 | cut -d' ' -f2) #'
       echo "CURL_STATUS=$CURL_STATUS"
       [ "$CURL_STATUS" = "201" ] && exit 0 || exit 1
     fi
