@@ -43,8 +43,14 @@ before_install:
       #git commit -am 'New report.'
       #git push https://$USER:$OAUTH_TOKEN@github.com/$USER/$REPOSITORY
       #|-
-      curl -i -H "Authorization: token $OAUTH_TOKEN" -d '{"title": "New PR title", "base": "'$TRAVIS_BRANCH'", "head": "'$USER':'$TRAVIS_BRANCH'"}' https://api.github.com/repos/$UPSTREAM_USER/$REPOSITORY/pulls #'
-      echo "EXIT_CODE=$?"
+      if [ -z "$OAUTH_TOKEN" ]; then
+        echo "Please set the OAUTH_TOKEN environment variable in Travis CI with a valid access token which has the 'public_repo' scope."
+        exit 1
+      fi
+
+      CURL_STATUS=$(curl -i -H "Authorization: token $OAUTH_TOKEN" -d '{"title": "New PR title", "base": "'$TRAVIS_BRANCH'", "head": "'$USER':'$TRAVIS_BRANCH'"}' https://api.github.com/repos/$UPSTREAM_USER/$REPOSITORY/pulls | head -n1 | cut -d' ' -f2) #'
+      echo "CURL_STATUS=$CURL_STATUS"
+      [ "$CURL_STATUS" = "201" ] && exit 0 || exit 1
     fi
     #if [ -n "$OAUTH_TOKEN" ]; then
     #  export REPOSITORY=${TRAVIS_REPO_SLUG##*/}
