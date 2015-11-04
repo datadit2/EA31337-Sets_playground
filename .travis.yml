@@ -34,7 +34,8 @@ before_install:
       export REPOSITORY=${TRAVIS_REPO_SLUG##*/}
     fi
   - env
-  - kill -9 -1
+  - ps aux
+  - exit 0
 
   # Add PPA/Wine repository
   - sudo add-apt-repository -y ppa:ubuntu-wine/ppa
