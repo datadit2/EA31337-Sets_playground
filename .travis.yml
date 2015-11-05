@@ -45,18 +45,21 @@ before_install:
       fi
 
       # Send pull-request to upstream (main) repository for doing the backtests
+      # TODO [NO CI]
       CURL_STATUS=$(curl -siH "Authorization: token $OAUTH_TOKEN" -d '{"title": "'"$(date --rfc-3339=seconds)"'", "base": "'$TRAVIS_BRANCH'", "head": "'$USER':'$TRAVIS_BRANCH'"}' https://api.github.com/repos/$UPSTREAM_USER/$REPOSITORY/pulls | head -n1 | cut -d' ' -f2) #'
       echo "CURL_STATUS=$CURL_STATUS"
       if [ "$CURL_STATUS" != "201" ]; then
         exit 1  # TODO Provide some useful message...
       fi
       exit 0
-
-      if [ "$TRAVIS_BRANCH" != "master" ]; then
-        echo "We're in the upstream repo on $TRAVIS_BRANCH branch.  TODO"
+    else
+      if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
+      echo "[ERROR] We're in the upstream repo, but running on the virtual branch of the pull request which shouldn't have been happened!"
         exit 1
       fi
     fi
+
+  - echo '[OK] Building on upstream:master.'
 
   # || WTF2
   # ||
