@@ -58,7 +58,7 @@ before_install:
       fi
     fi
 
-  # || WTF
+  # || WTF2
   # ||
   # \/
   - env
