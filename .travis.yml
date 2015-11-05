@@ -38,9 +38,6 @@ before_install:
   - |
     # Send pull-request to upstream repository if Travis is running in a forked repository
     if [ "$USER" != "$UPSTREAM_USER" ]; then
-      #git push https://$USER:$OAUTH_TOKEN@github.com/$USER/$REPOSITORY
-      #|-
-
       # Check if the forker's GitHub access token was passed to Travis
       if [ -z "$OAUTH_TOKEN" ]; then
         echo "Please set the OAUTH_TOKEN environment variable in Travis CI with a valid access token which has the 'public_repo' scope."
@@ -122,8 +119,14 @@ script:
   - git add -A "$MODE"
   - git config user.name $USER
   - git config user.email $USER'@users.noreply.github.com'
-  - git commit -am 'New report.'
-  - git push
+  - git commit -am 'New report.' # TODO [NO CI] message
+  - |
+    # Check if the GitHub access token of main repository was passed to Travis
+    if [ -z "$OAUTH_TOKEN" ]; then
+      echo "Please set the OAUTH_TOKEN environment variable in Travis CI with a valid access token which has the 'public_repo' scope."
+      exit 1
+    fi
+  - git push https://$UPSTREAM_USER:$OAUTH_TOKEN@github.com/$UPSTREAM_USER/$REPOSITORY
 
 
 # After Success
