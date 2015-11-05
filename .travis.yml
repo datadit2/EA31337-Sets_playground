@@ -45,7 +45,6 @@ before_install:
       fi
 
       # Send pull-request to upstream (main) repository for doing the backtests
-      # TODO [NO CI]
       CURL_STATUS=$(curl -siH "Authorization: token $OAUTH_TOKEN" -d '{"title": "'"$(date --rfc-3339=seconds) [ci skip]"'", "base": "'$TRAVIS_BRANCH'", "head": "'$USER':'$TRAVIS_BRANCH'"}' https://api.github.com/repos/$UPSTREAM_USER/$REPOSITORY/pulls | head -n1 | cut -d' ' -f2) #'
       echo "CURL_STATUS=$CURL_STATUS"
       if [ "$CURL_STATUS" != "201" ]; then
@@ -54,8 +53,9 @@ before_install:
       exit 0
     else
       if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
-      echo "[ERROR] We're in the upstream repo, but running on the virtual branch of the pull request which shouldn't have been happened!"
-        exit 1
+        echo "[WARNING] This build ran in the upstream repo, but only on the virtual branch of the pull request!"
+        echo "          Please wait until the owner of uptream repository merges your changes."
+        exit 0
       fi
     fi
 
@@ -116,20 +116,22 @@ script:
       ln -s "$EA_SAMPLE" "/vagrant/$MODE.ex4"
     fi
   - $CWD/_VM/scripts/dl_bt_data.sh
+  - NEW_BRANCH="EA-$(date +%Y%m%d)"
+  - echo "NEW_BRANCH=$NEW_BRANCH"
+  - git checkout -b $NEW_BRANCH
   - $CWD/_scripts/run_backtests.sh "$MODE"
-  - DATE=$(date +%Y%m%d)
-  - git checkout -b "EA-$DATE"
-  - git add -A "$MODE"
+  - git add -vA "$MODE"
   - git config user.name $USER
   - git config user.email $USER'@users.noreply.github.com'
-  - git commit -am 'New report.' # TODO [NO CI] message
+  - git commit -am 'New commit. [ci skip]'
   - |
     # Check if the GitHub access token of main repository was passed to Travis
     if [ -z "$OAUTH_TOKEN" ]; then
       echo "Please set the OAUTH_TOKEN environment variable in Travis CI with a valid access token which has the 'public_repo' scope."
       exit 1
     fi
-  - git push https://$UPSTREAM_USER:$OAUTH_TOKEN@github.com/$UPSTREAM_USER/$REPOSITORY
+  - git remote -v  # REMOVE_ME
+  - git push --set-upstream https://$UPSTREAM_USER:$OAUTH_TOKEN@github.com/$UPSTREAM_USER/$REPOSITORY $NEW_BRANCH
 
 
 # After Success
