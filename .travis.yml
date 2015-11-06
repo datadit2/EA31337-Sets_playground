@@ -57,11 +57,12 @@ before_install:
         echo "PR_HTTP_STATUS=$PR_HTTP_STATUS"
         exit 1
       fi
+      echo "[INFO] Your changeset has been sent to upstream repository as a pull request, please wait until it's merged."
       exit 0
     else
       # If pull request was sent to upstream repository (via Travis or manually) notify the sender about it, ...
       if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
-        echo "[INFO] Your changes are staged in the upstream repository, please wait until they are merged for running the backtests."
+        echo "[INFO] Your changes are now staged in the upstream repository, waiting for a merge by repository owner..."
         exit 0
       fi
     fi
@@ -121,14 +122,14 @@ script:
     fi
   - $CWD/_VM/scripts/dl_bt_data.sh
   # Run backtests in a new branch and push results back to upstream repository
-  - NEW_BRANCH="EA-$(date +%Y%m%d)"
+  - NEW_BRANCH="EA-$(date +%Y%m%d_%H%M)"
   - git checkout -b $NEW_BRANCH
   - $CWD/_scripts/run_backtests.sh $MODE
   - find $MODE -type f -regex '.*Report\.\(htm\|gif\)' -delete  # Workaround for FX-MT-VM/scripts/run_backtest.sh:34
   - git add -vA $MODE
   - git config user.name $USER
-  - git config user.email $USER'@users.noreply.github.com'
-  - git commit -am 'Reports of branch $NEW_BRANCH. [ci skip]'
+  - git config user.email $USER@users.noreply.github.com
+  - git commit -am "Reports of branch $NEW_BRANCH. [ci skip]"
   - |
     # Check if the GitHub access token of main repository was passed to Travis
     if [ -z "$OAUTH_TOKEN" ]; then
